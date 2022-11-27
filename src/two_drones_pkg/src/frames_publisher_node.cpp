@@ -15,11 +15,11 @@ class FramesPublisherNode{
   FramesPublisherNode(){
     // NOTE: This method is run once, when the node is launched.
     startup_time = ros::Time::now();
-    heartbeat = nh.createTimer(ros::Duration(0.02), &FramesPublisherNode::onPublish, this);
+    heartbeat = nh.createTimer(ros::Duration(0.02), &FramesPublisherNode::onPublish, this); // 每个duration 运行 onPublish
     heartbeat.start();
   }
 
-  void onPublish(const ros::TimerEvent&){
+  void onPublish(const ros::TimerEvent& te){
     // NOTE: This method is called at 50Hz, due to the timer created on line 16.
 
     //
@@ -32,7 +32,7 @@ class FramesPublisherNode{
     //   - convert the resulting Duration to seconds, store result into a doubl
 
     // ToDo: *** FILL IN ***
-    // double time = *** FILL IN ***;
+    double time = te.current_real.toSec() - startup_time.toSec();
 
     // Here we declare two tf::Transform objects, which need to be populated
     tf::Transform AV1World(tf::Transform::getIdentity());
@@ -54,7 +54,11 @@ class FramesPublisherNode{
     //    - check out the ROS tf Tutorials: http://wiki.ros.org/tf/Tutorials,
     //      http://wiki.ros.org/tf/Tutorials/Adding%20a%20frame%20%28C%2B%2B%29#The_Code
     //    - consider the setRPY method on a tf::quaternion for AV1
+    AV1World.setOrigin(tf::Vector3(cos(time), sin(time), 0.0));
+    AV1World.setRotation( tf::Quaternion(0, 0, 0, 1) );
 
+    AV2World.setOrigin(tf::Vector3(sin(time), 0.0, cos(2*time)));
+    AV2World.setRotation( tf::Quaternion(0, 0, 0, 1) );
     // ToDo: *** FILL IN ***
 
     // 3. Publish the transforms, namely:
@@ -65,6 +69,9 @@ class FramesPublisherNode{
     //            node class (line 11) and use its sendTrasform method below
     //         2. the frame names are crucial for the rest of the assignment,
     //            make sure they are as specified, "av1", "av2" and "world"
+    tf::TransformBroadcaster br;
+    br.sendTransform(tf::StampedTransform(AV1World, ros::Time::now(), "world", "av1"));
+    br.sendTransform(tf::StampedTransform(AV2World, ros::Time::now(), "world", "av2"));
 
     // ToDo: *** FILL IN ***
 

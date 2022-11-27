@@ -160,6 +160,7 @@ class PlotsPublisherNode{
 
 int main(int argc, char** argv){
   ros::init(argc, argv, "plots_publisher_node");
+  ROS_INFO("start");
   PlotsPublisherNode node;
   ros::spin();
   return 0;
